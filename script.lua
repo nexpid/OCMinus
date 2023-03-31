@@ -1,10 +1,12 @@
 -- Services n stuff
 local RNs = game:GetService("RunService")
 local CAs = game:GetService("ContextActionService")
+local TWNs = game:GetService("TweenService")
 
 local plr = game.Players.LocalPlayer
 
-local hui = gethui and gethui() or game.CoreGui
+local hui = game.CoreGui
+--local hui = gethui and gethui() or game.CoreGui
 local asset = getcustomasset or getsynasset
 
 -- Init
@@ -42,6 +44,8 @@ end
 
 local status = Instance.new("Message", hui)
 status.Name = "status"
+status.Text = "loading"
+
 local function sstatus(act, ...)
 	local args = {...}
 	if act == "download" then status.Text = ("Downloading Files %s/%s"):format(args[1], args[2]) end
@@ -183,6 +187,26 @@ local plugingui = plr.PlayerGui.PluginGui.BackFrame
 
 firesignal(choose.Buttons.Basic.Activated)
 
+if game.SoundService:FindFirstChild("gang") then game.SoundService.gang:Destroy() end
+local gang = Instance.new("SoundGroup", game.SoundService)
+gang.Volume = 1
+gang.Name = "gang"
+
+plr.PlayerGui.Music.CurrentlyPlaying.SoundGroup = gang
+
+local shop = ui.GamepassesFrame.Shop
+for _, x in pairs(shop:GetChildren()) do
+	if not x:IsA("TextButton") then continue end
+
+	for _, y in pairs(getconnections(x.Activated)) do
+		y:Disable()
+	end
+	evn(x.Activated:Connect(function()
+		restricted()
+		shop.Parent.Visible = false
+	end))
+end
+
 local mptel = plr.PlayerGui["Money+Tele"]
 evn(RNs.RenderStepped:Connect(function()
 	for _, x in pairs(choose.Buttons:GetChildren()) do
@@ -231,14 +255,43 @@ CAs:UnbindAction("Tilt/Teleport")
 CAs:UnbindAction("Rotate")
 CAs:UnbindAction("Delete")
 
+-- gaslight gatekeep girlboss
+local metaID = tick()
+_G.ocmMetaID = metaID
+
+local tpObby = "304346361#13"
+
+local OLD
+OLD = hookmetamethod(game, "__namecall", function(...)
+	if _G.ocmMetaID ~= metaID then return OLD(...) end
+	local args = {...}
+
+	if getnamecallmethod() == "FireServer" or getnamecallmethod() == "InvokeServer" then
+		if tostring(args[1]) == "LoadObby" then
+			args[2] = tpObby
+		elseif tostring(args[1]) == "LoadRandomObby" then
+			args[1] = game.ReplicatedStorage.Events.LoadObby
+			args[2] = tpObby
+		end
+	end
+
+	return OLD(unpack(args))
+end)
+
 -- Play Intro Video Lmao
 if not _G.ocmLoaded then
-	_G.ocmLoaded = false
+	_G.ocmLoaded = true
 	local loaded = "intro"
-	local random = Random.new():NextInteger(0, 4)
+	local random = Random.new():NextInteger(1, 5)-1
 	if random ~= 0 then loaded ..= tostring(random) end
 
+	TWNs:Create(gang, TweenInfo.new(0.6), {
+		Volume = 0
+	}):Play()
 	playVideo(
 		asset("ocminus/videos/"..loaded..".webm")
 	)
+	TWNs:Create(gang, TweenInfo.new(0.6), {
+		Volume = 1
+	}):Play()
 end
