@@ -4,14 +4,14 @@ local CAs = game:GetService("ContextActionService")
 
 local plr = game.Players.LocalPlayer
 
-local hui = (gethui) and gethui() or game.CoreGui
+local hui = gethui and gethui() or game.CoreGui
 local asset = getcustomasset or getsynasset
 
 -- Init
 if hui:FindFirstChild("ocminus") then hui.ocminus:Destroy() end
 if game.CoreGui:FindFirstChild("ocminus") then game.CoreGui.ocminus:Destroy() end
 
-local ocminus = Instance.new("ScreenGui", game.CoreGui)
+local ocminus = Instance.new("ScreenGui", hui)
 ocminus.Name = "ocminus"
 ocminus.DisplayOrder = 6969
 ocminus.IgnoreGuiInset = true
@@ -57,12 +57,13 @@ local links = {
 		intro1 = ghLink("videos/intro1.webm"),
 		intro2 = ghLink("videos/intro2.webm"),
 		intro3 = ghLink("videos/intro3.webm"),
+		intro4 = ghLink("videos/intro4.webm"),
 	}
 }
 local atts = {
 	videos = ".webm"
 }
-local maxFiles = 2
+local maxFiles = 5
 local files = 0
 
 -- File Loader
@@ -222,6 +223,8 @@ evn(RNs.RenderStepped:Connect(function()
 	end
 
 	bandicam.Visible = plr.PlayerGui.ScreenshotMode.Value
+
+	plr.PlayerGui.DidYouKnow.Frame.Desc.Text = "OC- is the best and only Obby Creator enhancement!"
 end))
 
 CAs:UnbindAction("Tilt/Teleport")
@@ -230,9 +233,9 @@ CAs:UnbindAction("Delete")
 
 -- Play Intro Video Lmao
 if not _G.ocmLoaded then
-	_G.ocmLoaded = true
+	_G.ocmLoaded = false
 	local loaded = "intro"
-	local random = Random.new():NextInteger(0, 3)
+	local random = Random.new():NextInteger(0, 4)
 	if random ~= 0 then loaded ..= tostring(random) end
 
 	playVideo(
