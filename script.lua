@@ -1,5 +1,9 @@
 -- Services n stuff
+local RNs = game:GetService("RunService")
+local CAs = game:GetService("ContextActionService")
+
 local plr = game.Players.LocalPlayer
+
 local hui = (gethui) and gethui() or game.CoreGui
 local asset = getcustomasset or getsynasset
 
@@ -11,10 +15,23 @@ ocminus.Name = "ocminus"
 ocminus.IgnoreGuiInset = true
 ocminus.ResetOnSpawn = false
 
-_G.OCMevs = {}
+local bandicam = Instance.new("ImageLabel", ocminus)
+bandicam.BackgroundTransparency = 1
+bandicam.Name = "bandicam"
+bandicam.Size = UDim2.new(1, 0, 0, 80)
+bandicam.ScaleType = Enum.ScaleType.Fit
+
+local function ntf(text, color, time)
+	plr.PlayerGui.LocalOutput:Fire(text, color or Color3.new(1, 1, 1), time or 5)
+end
+local function restricted()
+	return ntf("This function has been restricted by OC-!", Color3.new(1, 0.2, 0.2), 6)
+end
+
 for _, x in pairs(_G.OCMevs or {}) do
 	x:Disconnect()
 end
+_G.OCMevs = {}
 
 local function evn(e)
 	_G.OCMevs[#_G.OCMevs+1] = e
@@ -35,15 +52,15 @@ local links = {
 	videos = {
 		intro = ghLink("videos/intro.webm")
 	},
-	audios = {
-		intro = ghLink("audios/intro.mp3")
+	images = {
+		bandicam = ghLink("images/bandicam.png")
 	}
 }
 local atts = {
 	videos = ".webm",
-	audios = ".mp3"
+	images = ".png"
 }
-local maxFiles = 3
+local maxFiles = 2
 local files = 0
 
 -- File Loader
@@ -52,6 +69,7 @@ if not isfolder("ocminus") then makefolder("ocminus") end
 
 for A, B in pairs(links) do
 	local a = atts[A]
+	if not isfolder("ocminus/"..A) then makefolder("ocminus/"..A) end
 	for f, x in pairs(B) do
 		sstatus("download", files, maxFiles)
 		local path = "ocminus/"..A.."/"..f..a
@@ -63,7 +81,9 @@ for A, B in pairs(links) do
 	end
 end
 
-local function playVideo(video, audio)
+bandicam.Image = asset("ocminus/images/bandicam.png")
+
+local function playVideo(video)
 	local vid = Instance.new("VideoFrame")
 	vid.Parent = ocminus
 	vid.Name = "video"
@@ -71,24 +91,139 @@ local function playVideo(video, audio)
 	vid.Size = UDim2.new(1, 0, 1, 0)
 	vid.Video = video
 	vid.Visible = true
-	local aud = Instance.new("Sound")
-	aud.Name = "video audio"
-	aud.Parent = ocminus
-	aud.SoundId = audio
+	vid.Volume = 2
 
-	repeat task.wait() until vid.IsLoaded and aud.IsLoaded
+	repeat task.wait() until vid.IsLoaded
 
 	vid:Play()
-	aud:Play()
 	vid.Ended:Wait()
 	vid:Destroy()
-	aud:Destroy()
 end
 
 status.Parent = nil
 
+-- trolling
+local ui = plr.PlayerGui.Edit
+local settings = ui.SettingsFrame
+
+settings.ThisFrame.CameraSens.Visible = false
+settings.ThisFrame.Copyrighted.Visible = false
+settings.ThisFrame.DarkMode.Visible = false
+settings.ThisFrame.DayValue.Visible = false
+settings.ThisFrame.DragEnabled.Visible = false
+settings.ThisFrame.InvisiblePlayers.Visible = false
+settings.ThisFrame.IsGodMode.Visible = false
+settings.ThisFrame.MoveUnderground.Visible = false
+settings.ThisFrame.SnapRotation.Visible = false
+settings.ThisFrame.TeamRequests.Visible = false
+
+local incr = settings.ThisFrame.Increments
+incr.Visible = true
+if incr:FindFirstChild("MoveBoxA") then incr.MoveBoxA:Destroy() end
+if incr:FindFirstChild("RotateBoxA") then incr.RotateBoxA:Destroy() end
+if incr:FindFirstChild("Block") then incr.Block:Destroy() end
+
+incr.MoveBox.Visible = false
+incr.RotateBox.Visible = false
+
+local faint = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+local rotateBoxA = Instance.new("TextLabel", incr)
+rotateBoxA.Name = "RotateBoxA"
+rotateBoxA.FontFace = faint
+rotateBoxA.BackgroundColor3 = Color3.fromRGB(38, 38, 38)
+rotateBoxA.BorderSizePixel = 0
+rotateBoxA.AnchorPoint = Vector2.new(0, 0.5)
+rotateBoxA.Position = UDim2.new(0.55, 0, 0.5, 0)
+rotateBoxA.Size = UDim2.new(0.45, 0, 1, 0)
+rotateBoxA.TextScaled = true
+rotateBoxA.TextColor3 = Color3.new(1, 1, 1)
+rotateBoxA.Text = "90"
+rotateBoxA.ZIndex = 3
+incr.RotateBox.Title:Clone().Parent = rotateBoxA
+
+local moveBoxA = rotateBoxA:Clone()
+moveBoxA.Parent = incr
+moveBoxA.Name = "MoveBoxA"
+moveBoxA.Position = UDim2.new(0, 0, 0.5, 0)
+moveBoxA:ClearAllChildren()
+moveBoxA.Text = "1"
+incr.MoveBox.Title:Clone().Parent = moveBoxA
+
+local block = Instance.new("TextButton", incr)
+block.Name = "Block"
+block.Active = true
+block.BackgroundTransparency = 1
+block.Text = ""
+block.Size = UDim2.new(1, 0, 1, 0)
+block.Position = UDim2.new()
+block.Activated:Connect(restricted)
+
+for _, x in pairs(getconnections(settings.TutorialButton.Activated)) do
+	x:Disable()
+end
+evn(settings.TutorialButton.Activated:Connect(restricted))
+
+local music = settings.ThisFrame.MusicFrame
+music.Position = UDim2.new(0.25, 0, 0.875, 0)
+music.Mute.Position = music.Back1.Position
+music.Back1.Visible = false
+music.Back10.Visible = false
+music.Skip1.Visible = false
+music.Skip10.Visible = false
+music.TextLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local frm = settings.ThisFrame.Frame
+local choose = ui.ChooseFrame
+local selfr = ui.SelectionFrame
+local plugingui = plr.PlayerGui.PluginGui.BackFrame
+
+firesignal(choose.Buttons.Basic.Activated)
+
+local mptel = plr.PlayerGui["Money+Tele"]
+evn(RNs.RenderStepped:Connect(function()
+	for _, x in pairs(choose.Buttons:GetChildren()) do
+		if x:IsA("TextButton") then x.Visible = x.Name == "Basic" end
+	end
+
+	plr.leaderstats.Cash.Value = 80085
+	plr.leaderstats.Gems.Value = 80085
+	
+	settings.TutorialButton.Position = settings.ClearButton.Position
+	settings.PermissionButton.Visible = false
+	settings.RevertButton.Visible = false
+	settings.ClearButton.Visible = false
+	settings.TutorialButton.AutoButtonColor = false
+
+	frm["Buttons"].Text = "Buttons: 0/∞"
+	frm["Character Models"].Text = "Character Models: 0/∞"
+	frm["Conveyors"].Text = "Conveyors: 0/∞"
+	frm["Moving Parts"].Text = "Moving Parts: 0/∞"
+	frm["Push Parts"].Text = "Push Parts: 0/∞"
+	frm["Spin Parts"].Text = "Spin Parts: 0/∞"
+	frm["Timed Parts"].Text = "Timed Parts: 0/∞"
+	frm["Water"].Text = "Water: 0/∞"
+
+	mptel.TeleButton.MoneyLabel.Text = "$∞"
+	mptel.TeleButton.MoneyLabel["Cash Limit"].Visible = false
+
+	selfr.DeleteButton.Visible = false
+	selfr.MultiButton.Visible = false
+	selfr.TeleButton.Visible = false
+	selfr.SettingsButton.Position = UDim2.new(0.4, -5, 1, -10)
+	selfr.CloneButton.Position = UDim2.new(0.5, 0, 1, -10)
+	selfr.ModeButton.Position = UDim2.new(0.6, 5, 1, -10)
+	selfr.LocalImage.Position = UDim2.new(0.7, 5, 1, -10)
+
+	for _, x in pairs(plugingui.Frame.MainFrame:GetChildren()) do
+		if x:IsA("Frame") then x.Visible = false end
+	end
+end))
+
+CAs:UnbindAction("Tilt/Teleport")
+CAs:UnbindAction("Rotate")
+CAs:UnbindAction("Delete")
+
 -- Play Intro Video Lmao
-playVideo(
-	asset("ocminus/videos/intro.webm"),
-	asset("ocminus/audios/intro.mp3")
-)
+--[[playVideo(
+	asset("ocminus/videos/intro.webm")
+)]]
