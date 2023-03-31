@@ -14,7 +14,7 @@ local OCMinusURL = {
     file = "script.lua"
 }
 local OCMinusUrlFormat = "%s%s%s%s%s"
-local OCMinusFullUrl = OCMinusURLFormat:format(
+local OCMinusFullUrl = OCMinusUrlFormat:format(
     OCMinusURL.protocol,
     OCMinusURL.protocolFormat,
     OCMinusURL.host,
