@@ -50,3 +50,14 @@ OC- is a continuation of OC+, which helps players not get overstimulated while p
 ### The script doesn't work!
 
 I don't care
+
+# Credits ✨
+
+> **@nexpid#**  
+> Coded this lol
+
+> **@34thn#9189**  
+> Suggested ideas
+
+> **panzoid.com**  
+> Various intro (OC- Loaded) videos

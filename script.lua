@@ -9,17 +9,20 @@ local asset = getcustomasset or getsynasset
 
 -- Init
 if hui:FindFirstChild("ocminus") then hui.ocminus:Destroy() end
+if game.CoreGui:FindFirstChild("ocminus") then game.CoreGui.ocminus:Destroy() end
 
-local ocminus = Instance.new("ScreenGui", hui)
+local ocminus = Instance.new("ScreenGui", game.CoreGui)
 ocminus.Name = "ocminus"
+ocminus.DisplayOrder = 6969
 ocminus.IgnoreGuiInset = true
 ocminus.ResetOnSpawn = false
 
 local bandicam = Instance.new("ImageLabel", ocminus)
 bandicam.BackgroundTransparency = 1
 bandicam.Name = "bandicam"
-bandicam.Size = UDim2.new(1, 0, 0, 80)
+bandicam.Size = UDim2.new(1, 0, 0.08, 0)
 bandicam.ScaleType = Enum.ScaleType.Fit
+bandicam.Visible = false
 
 local function ntf(text, color, time)
 	plr.PlayerGui.LocalOutput:Fire(text, color or Color3.new(1, 1, 1), time or 5)
@@ -50,15 +53,14 @@ local function ghLink(x)
 end
 local links = {
 	videos = {
-		intro = ghLink("videos/intro.webm")
-	},
-	images = {
-		bandicam = ghLink("images/bandicam.png")
+		intro = ghLink("videos/intro.webm"),
+		intro1 = ghLink("videos/intro1.webm"),
+		intro2 = ghLink("videos/intro2.webm"),
+		intro3 = ghLink("videos/intro3.webm"),
 	}
 }
 local atts = {
-	videos = ".webm",
-	images = ".png"
+	videos = ".webm"
 }
 local maxFiles = 2
 local files = 0
@@ -75,13 +77,14 @@ for A, B in pairs(links) do
 		local path = "ocminus/"..A.."/"..f..a
 		if not isfile(path) then
 			writefile(path, game:HttpGet(x))
-			files += 1
+			asset(path)
 		end
+		files += 1
 		sstatus("download", files, maxFiles)
 	end
 end
 
-bandicam.Image = asset("ocminus/images/bandicam.png")
+bandicam.Image = "rbxassetid://12956416057"
 
 local function playVideo(video)
 	local vid = Instance.new("VideoFrame")
@@ -217,6 +220,8 @@ evn(RNs.RenderStepped:Connect(function()
 	for _, x in pairs(plugingui.Frame.MainFrame:GetChildren()) do
 		if x:IsA("Frame") then x.Visible = false end
 	end
+
+	bandicam.Visible = plr.PlayerGui.ScreenshotMode.Value
 end))
 
 CAs:UnbindAction("Tilt/Teleport")
@@ -224,6 +229,13 @@ CAs:UnbindAction("Rotate")
 CAs:UnbindAction("Delete")
 
 -- Play Intro Video Lmao
---[[playVideo(
-	asset("ocminus/videos/intro.webm")
-)]]
+if not _G.ocmLoaded then
+	_G.ocmLoaded = true
+	local loaded = "intro"
+	local random = Random.new():NextInteger(0, 3)
+	if random ~= 0 then loaded ..= tostring(random) end
+
+	playVideo(
+		asset("ocminus/videos/"..loaded..".webm")
+	)
+end
