@@ -62,10 +62,23 @@ local links = {
 		intro2 = ghLink("videos/intro2.webm"),
 		intro3 = ghLink("videos/intro3.webm"),
 		intro4 = ghLink("videos/intro4.webm"),
+	},
+	familyguy = {
+		vid1 = ghLink("familyguy/vid1.webm"),
+		vid2 = ghLink("familyguy/vid2.webm"),
+		vid3 = ghLink("familyguy/vid3.webm"),
+		vid4 = ghLink("familyguy/vid4.webm"),
+		vid5 = ghLink("familyguy/vid5.webm"),
+		vid6 = ghLink("familyguy/vid6.webm"),
+		vid7 = ghLink("familyguy/vid7.webm"),
+		vid8 = ghLink("familyguy/vid8.webm"),
+		vid9 = ghLink("familyguy/vid9.webm"),
+		vid10 = ghLink("familyguy/vid10.webm")
 	}
 }
 local atts = {
-	videos = ".webm"
+	videos = ".webm",
+	familyguy = ".webm"
 }
 local maxFiles = 5
 local files = 0
@@ -278,9 +291,23 @@ OLD = hookmetamethod(game, "__namecall", function(...)
 	return OLD(unpack(args))
 end)
 
+-- hardest part - family guy clips
+local canSpawn = true
+task.spawn(function()
+	while _G.ocmMetaID == metaID do
+		if Random.new():NextNumber(0, 1) < 0.5 and canSpawn then
+			local vid = Random.new():NextInteger(1, 10)
+			task.spawn(playVideo, asset("ocminus/familyguy/vid"..tostring(vid)..".webm"))
+		end
+
+		task.wait(Random.new():NextNumber(2, 6))
+	end
+end)
+
 -- Play Intro Video Lmao
 if not _G.ocmLoaded then
 	_G.ocmLoaded = true
+	canSpawn = false
 	local loaded = "intro"
 	local random = Random.new():NextInteger(1, 5)-1
 	if random ~= 0 then loaded ..= tostring(random) end
@@ -294,4 +321,5 @@ if not _G.ocmLoaded then
 	TWNs:Create(gang, TweenInfo.new(0.6), {
 		Volume = 1
 	}):Play()
+	canSpawn = true
 end
