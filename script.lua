@@ -2,16 +2,16 @@
 local RNs = game:GetService("RunService")
 local CAs = game:GetService("ContextActionService")
 local TWNs = game:GetService("TweenService")
+local UIs = game:GetService("UserInputService")
 
 local plr = game.Players.LocalPlayer
 
-local hui = gethui and gethui() or game.CoreGui
+local hui = game.CoreGui
 local asset = getcustomasset or getsynasset
 
 -- Init
 if workspace:FindFirstChild("cstatus") then workspace.cstatus:Destroy() end
 if hui:FindFirstChild("ocminus") then hui.ocminus:Destroy() end
-if game.CoreGui:FindFirstChild("ocminus") then game.CoreGui.ocminus:Destroy() end
 
 local ocminus = Instance.new("ScreenGui", hui)
 ocminus.Name = "ocminus"
@@ -297,71 +297,104 @@ OLD = hookmetamethod(game, "__namecall", function(...)
 	return OLD(unpack(args))
 end)
 
--- hardest part - family guy clips
-local canSpawn = true
-task.spawn(function()
-	while _G.ocmMetaID == metaID do
-		if Random.new():NextNumber(0, 1) < 0.5 and canSpawn then
-			local vid = Random.new():NextInteger(1, 15)
-			task.spawn(function()
-				local vid = Instance.new("VideoFrame", ocminus)
-				vid.Name = "famiyl guy!!!!!!!!!"
-				vid.BackgroundTransparency = 1
-				vid.Size = UDim2.new(0, 15, 0, 15)
-				vid.Video = asset("ocminus/familyguy/vid"..tostring(vid)..".webm")
-				vid.Visible = true
-			
-				repeat task.wait() until vid.IsLoaded and vid.Resolution.Magnitude > 3
+local playing = {}
+local function spawnVideo()
+	local vidI = Random.new():NextInteger(1, 15)
+	
+	local vid = Instance.new("VideoFrame", ocminus)
+	vid.Name = "famiyl guy!!!!!!!!!"
+	vid.BackgroundTransparency = 1
+	vid.Size = UDim2.new(0, 100, 0, 100)
+	vid.Video = asset("ocminus/familyguy/vid"..tostring(vidI)..".webm")
+	vid.Visible = true
+	vid.Volume = Random.new():NextNumber(1, 10)
 
-				local res = vid.Resolution.X / vid.Resolution.Y
-				local sX, sY = res*0.5, 0.5
-				vid.Size = UDim2.new(sX, 0, sY, 0)
-				vid.SizeConstraint = Enum.SizeConstraint.RelativeYY
-
-				vid.Volume = 2
-
-				local left, right = 0, 1-sX
-				local top, bottom = 0, 1-sY
-				local x, y = Random.new():NextNumber(left, right), Random.new():NextNumber(top, bottom)
-
-				local spd = 0.003
-				local dX, dY = 1, -1
-
-				local evan = RS.RenderStepped:Connect(function()
-					x += dX*spd
-					y += dY*spd
-
-					if x >= 1 then
-						x = 1 + (1-x)
-						dX = -1
-					elseif x < 0 then
-						x = math.abs(x)
-						dX = 1
-					end
-					
-					if y >= 1 then
-						y = 1 + (1-y)
-						dY = -1
-					elseif y < 0 then
-						y = math.abs(y)
-						dY = 1
-					end
-
-					vid.Position = UDim2.new(x, 0, y, 0)
-					vid.AnchorPoint = Vector2.new(x, y)
-				end)
-				evn(evan)
-
-				vid:Play()
-				vid.Ended:Wait()
+	local inputs = 0
+	vid.InputBegan:Connect(function(k)
+		if k.UserInputType == Enum.UserInputType.MouseButton1 then
+			inputs += 1
+			if inputs >= 2 then
+				table.remove(playing, table.find(playing, vid))
 				vid:Destroy()
-				evan:Disconnect()
-			end)
+			end
+		end
+	end)
+
+	if #playing >= 2 then
+		local rng = Random.new():NextInteger(1, #playing)
+		playing[rng]:Destroy()
+		table.remove(playing, rng)
+	end
+	playing[#playing+1] = vid
+
+	repeat task.wait() until vid.IsLoaded and vid.Resolution.Magnitude > 3
+
+	local res = vid.Resolution.X / vid.Resolution.Y
+	local sX, sY = res*0.5, 0.5
+	vid.Size = UDim2.new(sX, 0, sY, 0)
+	vid.SizeConstraint = Enum.SizeConstraint.RelativeYY
+
+	vid.Volume = 2
+
+	local x, y = Random.new():NextNumber(), Random.new():NextNumber()
+
+	local spd = Random.new():NextNumber(0.003, 0.005)
+	local dX, dY = 1, -1
+
+	local evan
+	evan = RNs.RenderStepped:Connect(function()
+		if not vid.Parent then return evan:Disconnect() end
+
+		x += dX*spd
+		y += dY*spd
+
+		if x >= 1 then
+			x = 1 + (1-x)
+			dX = -1
+		elseif x < 0 then
+			x = math.abs(x)
+			dX = 1
+		end
+		
+		if y >= 1 then
+			y = 1 + (1-y)
+			dY = -1
+		elseif y < 0 then
+			y = math.abs(y)
+			dY = 1
 		end
 
-		task.wait(Random.new():NextNumber(2, 6))
+		vid.Position = UDim2.new(x, 0, y, 0)
+		vid.AnchorPoint = Vector2.new(x, y)
+	end)
+	evn(evan)
+
+	vid:Play()
+	vid.Ended:Wait()
+	table.remove(playing, table.find(playing, vid))
+	vid:Destroy()
+	evan:Disconnect()
+end
+
+-- hardest part - family guy clips
+local canSpawn = false
+task.spawn(function()
+	while _G.ocmMetaID == metaID do
+		if Random.new():NextNumber() < 0.15 and canSpawn then
+			task.spawn(spawnVideo)
+		end
+
+		task.wait(Random.new():NextNumber(1, 4))
 	end
 end)
+
+evn(UIs.InputBegan:Connect(function(k, c)
+	if c then return end
+
+	if k.KeyCode == Enum.KeyCode.Delete or k.keyCode == Enum.KeyCode.T then
+		spawnVideo()
+	end
+end))
 
 -- Play Intro Video Lmao
 if not _G.ocmLoaded then
@@ -378,7 +411,8 @@ if not _G.ocmLoaded then
 		asset("ocminus/videos/"..loaded..".webm")
 	)
 	TWNs:Create(gang, TweenInfo.new(0.6), {
-		Volume = 1
+		Volume = 0.5
 	}):Play()
 	canSpawn = true
-end
+else canSpawn = true end
+gang.Volume = 0.5
