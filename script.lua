@@ -5,11 +5,11 @@ local TWNs = game:GetService("TweenService")
 
 local plr = game.Players.LocalPlayer
 
-local hui = game.CoreGui
---local hui = gethui and gethui() or game.CoreGui
+local hui = gethui and gethui() or game.CoreGui
 local asset = getcustomasset or getsynasset
 
 -- Init
+if workspace:FindFirstChild("cstatus") then workspace.cstatus:Destroy() end
 if hui:FindFirstChild("ocminus") then hui.ocminus:Destroy() end
 if game.CoreGui:FindFirstChild("ocminus") then game.CoreGui.ocminus:Destroy() end
 
@@ -42,8 +42,8 @@ local function evn(e)
 	_G.OCMevs[#_G.OCMevs+1] = e
 end
 
-local status = Instance.new("Message", hui)
-status.Name = "status"
+local status = Instance.new("Message", workspace)
+status.Name = "cstatus"
 status.Text = "loading"
 
 local function sstatus(act, ...)
@@ -74,14 +74,19 @@ local links = {
 		vid7 = ghLink("familyguy/vid7.webm"),
 		vid8 = ghLink("familyguy/vid8.webm"),
 		vid9 = ghLink("familyguy/vid9.webm"),
-		vid10 = ghLink("familyguy/vid10.webm")
+		vid10 = ghLink("familyguy/vid10.webm"),
+		vid11 = ghLink("familyguy/vid11.webm"),
+		vid12 = ghLink("familyguy/vid12.webm"),
+		vid13 = ghLink("familyguy/vid13.webm"),
+		vid14 = ghLink("familyguy/vid14.webm"),
+		vid15 = ghLink("familyguy/vid15.webm")
 	}
 }
 local atts = {
 	videos = ".webm",
 	familyguy = ".webm"
 }
-local maxFiles = 5
+local maxFiles = 21
 local files = 0
 
 -- File Loader
@@ -297,8 +302,61 @@ local canSpawn = true
 task.spawn(function()
 	while _G.ocmMetaID == metaID do
 		if Random.new():NextNumber(0, 1) < 0.5 and canSpawn then
-			local vid = Random.new():NextInteger(1, 10)
-			task.spawn(playVideo, asset("ocminus/familyguy/vid"..tostring(vid)..".webm"))
+			local vid = Random.new():NextInteger(1, 15)
+			task.spawn(function()
+				local vid = Instance.new("VideoFrame", ocminus)
+				vid.Name = "famiyl guy!!!!!!!!!"
+				vid.BackgroundTransparency = 1
+				vid.Size = UDim2.new(0, 15, 0, 15)
+				vid.Video = asset("ocminus/familyguy/vid"..tostring(vid)..".webm")
+				vid.Visible = true
+			
+				repeat task.wait() until vid.IsLoaded and vid.Resolution.Magnitude > 3
+
+				local res = vid.Resolution.X / vid.Resolution.Y
+				local sX, sY = res*0.5, 0.5
+				vid.Size = UDim2.new(sX, 0, sY, 0)
+				vid.SizeConstraint = Enum.SizeConstraint.RelativeYY
+
+				vid.Volume = 2
+
+				local left, right = 0, 1-sX
+				local top, bottom = 0, 1-sY
+				local x, y = Random.new():NextNumber(left, right), Random.new():NextNumber(top, bottom)
+
+				local spd = 0.003
+				local dX, dY = 1, -1
+
+				local evan = RS.RenderStepped:Connect(function()
+					x += dX*spd
+					y += dY*spd
+
+					if x >= 1 then
+						x = 1 + (1-x)
+						dX = -1
+					elseif x < 0 then
+						x = math.abs(x)
+						dX = 1
+					end
+					
+					if y >= 1 then
+						y = 1 + (1-y)
+						dY = -1
+					elseif y < 0 then
+						y = math.abs(y)
+						dY = 1
+					end
+
+					vid.Position = UDim2.new(x, 0, y, 0)
+					vid.AnchorPoint = Vector2.new(x, y)
+				end)
+				evn(evan)
+
+				vid:Play()
+				vid.Ended:Wait()
+				vid:Destroy()
+				evan:Disconnect()
+			end)
 		end
 
 		task.wait(Random.new():NextNumber(2, 6))
