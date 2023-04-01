@@ -62,6 +62,7 @@ local links = {
 		intro2 = ghLink("videos/intro2.webm"),
 		intro3 = ghLink("videos/intro3.webm"),
 		intro4 = ghLink("videos/intro4.webm"),
+		intro5 = ghLink("videos/intro5.webm"),
 	},
 	familyguy = {
 		vid1 = ghLink("familyguy/vid1.webm"),
@@ -309,7 +310,7 @@ if not _G.ocmLoaded then
 	_G.ocmLoaded = true
 	canSpawn = false
 	local loaded = "intro"
-	local random = Random.new():NextInteger(1, 5)-1
+	local random = Random.new():NextInteger(1, 6)-1
 	if random ~= 0 then loaded ..= tostring(random) end
 
 	TWNs:Create(gang, TweenInfo.new(0.6), {
