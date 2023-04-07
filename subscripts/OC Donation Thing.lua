@@ -33,15 +33,18 @@ local function setUser()
 	userLEL:Set(("Current User: @%s (%s)"):format(user, userI))
 end
 
-local userDelay = 0
-local function delayUserSet()
-	local ID = tick()
-	userDelay = ID
-
-	task.delay(2, function()
-		if userDelay ~= ID then return end
-		setUser()
-	end)
+local function notify(title, content)
+    Rayfield:Notify({
+        Title = title,
+        Content = content,
+        Duration = 2,
+        Actions = {
+            Ignore = {
+                Name = "Dismiss",
+                Callback = function() end
+            }
+        }
+    })
 end
 
 local Tab = Window:CreateTab("Main")
@@ -55,10 +58,10 @@ Tab:CreateInput({
 
 		userLEL:Set("...")
         local scs, id = pcall(game.Players.GetUserIdFromNameAsync, game.Players, txt)
-        if not scs or not id then userLEL:Set("Invalid user!"); return delayUserSet() end
+        if not scs or not id then notify("Error", "Invalid user!"); return setUser() end
 
         local scss, userr = pcall(game.Players.GetNameFromUserIdAsync, game.Players, id)
-        if not scs or not id then userLEL:Set("Invalid user!"); return delayUserSet() end
+        if not scs or not id then notify("Error", "Invalid user!"); return setUser() end
 
         user, userI = userr, id
         setUser()
@@ -206,6 +209,8 @@ local makeButtonEL = Tab:CreateButton({
             local red = game:HttpGet(("https://www.roblox.com/users/inventory/list-json?assetTypeId=34&itemsPerPage=100&pageNumber=1&userId=%s&cursor=%s"):format(userI, cursor))
             local scs, json = pcall(HTTPs.JSONDecode, HTTPs, red)
             if not scs or not json then return end
+
+            if not json.Data or not json.Data.Items then return notify("Error", ("%s doesn't have their inventory enabled!"):format(user)) end
 
             for _, x in pairs(json.Data.Items) do
                 if not x.Product then continue end
