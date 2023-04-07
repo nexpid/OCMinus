@@ -6,27 +6,7 @@
 You can load the OCMinus script by using this simple script!
 
 ```lua
-local OCMinusURL = {
-    protocol = "https",
-    protocolFormat = "://",
-    host = "raw.githubusercontent.com",
-    path = "/Gabe616/OCMinus/main/",
-    file = "script.lua"
-}
-local OCMinusUrlFormat = "%s%s%s%s%s"
-local OCMinusFullUrl = OCMinusUrlFormat:format(
-    OCMinusURL.protocol,
-    OCMinusURL.protocolFormat,
-    OCMinusURL.host,
-    OCMinusURL.path,
-    OCMinusURL.file
-)
-
-local OCMinusLoadedScript = game.HttpGet(game, OCMinusFullUrl)
-
-local OCMinusLoaderFunction = loadstring
-local OCMinusLoadedFunctionRunner = OCMinusLoaderFunction(OCMinusLoadedScript)
-OCMinusLoadedFunctionRunner()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Gabe616/OCMinus/main/script.lua"), "=OCMinus")()
 ```
 
 ## Executors
